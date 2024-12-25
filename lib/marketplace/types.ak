@@ -2,9 +2,7 @@ use aiken/crypto.{VerificationKeyHash}
 use cardano/assets.{AssetName, PolicyId}
 
 pub type MarketplaceRedeemer {
-  Sell
-  Buy
-  Refund
+  Payer
   Order
 }
 
@@ -15,7 +13,7 @@ pub type MarketplaceDatum {
   price: Int,
   royalties: Int,
   author: VerificationKeyHash,
-  order: Option<Ord>,
+  order: Ord,
 }
 
 pub type Ord {

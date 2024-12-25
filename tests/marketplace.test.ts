@@ -28,7 +28,7 @@ describe("Marketplace", function () {
         });
         const unsignedTx: string = await marketplaceContract.sell({
             policyId: "71cc52bee302c0a6ae17221754c4d64d210de8b4cb6a2e8feb294220",
-            assetName: "000de14043495036382047656e657261746f7273",
+            assetName: "000de14031373131",
             price: 10000000,
             amount: 1,
         });
@@ -48,8 +48,7 @@ describe("Marketplace", function () {
         });
         const unsignedTx: string = await marketplaceContract.buy({
             policyId: "71cc52bee302c0a6ae17221754c4d64d210de8b4cb6a2e8feb294220",
-            assetName: "000de1404e677579656e204b68616e68",
-            price: 100000,
+            assetName: "000de14043495036382047656e657261746f7273",
         });
         const signedTx = wallet.signTx(unsignedTx, true);
         const txHash = await wallet.submitTx(signedTx);
@@ -67,7 +66,7 @@ describe("Marketplace", function () {
         });
         const unsignedTx: string = await marketplaceContract.refund({
             policyId: "71cc52bee302c0a6ae17221754c4d64d210de8b4cb6a2e8feb294220",
-            assetName: "000de1404e677579656e204b68616e68",
+            assetName: "000de14043495036382047656e657261746f7273",
             amount: 1,
         });
         const signedTx = wallet.signTx(unsignedTx, true);
@@ -80,14 +79,14 @@ describe("Marketplace", function () {
     });
 
     test("Order", async function () {
-        return;
+        // return;
         const marketplaceContract: MarketplaceContract = new MarketplaceContract({
             wallet: wallet,
         });
         const unsignedTx: string = await marketplaceContract.order({
             policyId: "71cc52bee302c0a6ae17221754c4d64d210de8b4cb6a2e8feb294220",
-            assetName: "000de14043495036382047656e657261746f7273",
-            orderPrice: 10000000,
+            assetName: "000de14031373131",
+            orderPrice: 10000000000,
         });
         const signedTx = wallet.signTx(unsignedTx, true);
         const txHash = await wallet.submitTx(signedTx);
