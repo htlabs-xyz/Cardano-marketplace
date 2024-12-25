@@ -13,7 +13,7 @@ pub type MarketplaceDatum {
   price: Int,
   royalties: Int,
   author: VerificationKeyHash,
-  order: Option<Ord>,
+  order: Ord,
 }
 
 pub type Ord {

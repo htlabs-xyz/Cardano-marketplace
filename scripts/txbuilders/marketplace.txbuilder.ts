@@ -37,7 +37,7 @@ export class MarketplaceContract extends MeshAdapter implements IMarketplaceCont
                     assetName,
                     sellerPaymentKeyHash,
                     price,
-                    price / 100,
+                    price,
                     authorPaymentkeyHash,
                     mConStr0([authorPaymentkeyHash, price]),
                 ]),
@@ -61,15 +61,7 @@ export class MarketplaceContract extends MeshAdapter implements IMarketplaceCont
      * @method BUY
      *
      */
-    buy = async ({
-        policyId,
-        assetName,
-        price,
-    }: {
-        policyId: string;
-        assetName: string;
-        price: number;
-    }) => {
+    buy = async ({ policyId, assetName }: { policyId: string; assetName: string }) => {
         const { utxos, walletAddress, collateral } = await this.getWalletForTx();
         const utxo = await this.getAddressUTXOAsset(this.marketplaceAddress, policyId + assetName);
         if (!utxo) throw new Error("UTxO not found");
@@ -78,11 +70,12 @@ export class MarketplaceContract extends MeshAdapter implements IMarketplaceCont
         });
         const authorAddress = serializeAddressObj(scriptAddress(datum.author));
         const sellerAddress = serializeAddressObj(scriptAddress(datum.seller));
+        console.log(datum.price, datum.royalties);
         const unsignedTx = this.meshTxBuilder
             .spendingPlutusScriptV3()
             .txIn(utxo.input.txHash, utxo.input.outputIndex)
-            .txInInlineDatumPresent()
-            .txInRedeemerValue(mConStr0([]))
+            .spendingReferenceTxInInlineDatumPresent()
+            .spendingReferenceTxInRedeemerValue(mConStr0([]))
             .txInScript(this.marketplaceScriptCbor)
 
             .txOut(sellerAddress, [
@@ -144,8 +137,8 @@ export class MarketplaceContract extends MeshAdapter implements IMarketplaceCont
         const unsignedTx = this.meshTxBuilder
             .spendingPlutusScriptV3()
             .txIn(utxo.input.txHash, utxo.input.outputIndex)
-            .txInInlineDatumPresent()
-            .txInRedeemerValue(mConStr0([]))
+            .spendingReferenceTxInInlineDatumPresent()
+            .spendingReferenceTxInRedeemerValue(mConStr0([]))
             .txInScript(this.marketplaceScriptCbor)
 
             .txOut(walletAddress, [

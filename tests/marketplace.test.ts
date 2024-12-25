@@ -48,8 +48,7 @@ describe("Marketplace", function () {
         });
         const unsignedTx: string = await marketplaceContract.buy({
             policyId: "71cc52bee302c0a6ae17221754c4d64d210de8b4cb6a2e8feb294220",
-            assetName: "000de1404e677579656e204b68616e68",
-            price: 100000,
+            assetName: "000de14043495036382047656e657261746f7273",
         });
         const signedTx = wallet.signTx(unsignedTx, true);
         const txHash = await wallet.submitTx(signedTx);
@@ -67,7 +66,7 @@ describe("Marketplace", function () {
         });
         const unsignedTx: string = await marketplaceContract.refund({
             policyId: "71cc52bee302c0a6ae17221754c4d64d210de8b4cb6a2e8feb294220",
-            assetName: "000de1404e677579656e204b68616e68",
+            assetName: "000de14043495036382047656e657261746f7273",
             amount: 1,
         });
         const signedTx = wallet.signTx(unsignedTx, true);

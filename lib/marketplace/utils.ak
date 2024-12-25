@@ -1,8 +1,33 @@
-use cardano/address.{Address}
-use aiken/crypto.{VerificationKeyHash}
 use aiken/collection/list
-use cardano/assets.{lovelace_of, without_lovelace}
+use aiken/crypto.{VerificationKeyHash}
+use cardano/address.{Address}
+use cardano/assets.{flatten, lovelace_of, without_lovelace}
 use cardano/transaction.{Output, Transaction}
+use marketplace/types.{MarketplaceDatum}
+
+// check the output utxos containing the nft
+pub fn check_output_utxo(
+  output: Output,
+  datum_input: MarketplaceDatum,
+  datum_output: MarketplaceDatum,
+) -> Bool {
+  let output_value =
+    output.value
+      |> without_lovelace()
+      |> flatten()
+
+  and {
+    list.length(output_value) == 1,
+    datum_input.seller == datum_output.seller,
+    datum_input.price == datum_output.price,
+    datum_input.author == datum_output.author,
+    datum_input.policy_id == datum_output.policy_id,
+    datum_input.asset_name == datum_output.asset_name,
+    datum_input.royalties == datum_output.royalties,
+    datum_input.order.owner == datum_output.order.owner,
+    datum_input.order.value <= datum_output.order.value,
+  }
+}
 
 // The function checks the amount
 pub fn check_amount(output: Output, price: Int) -> Bool {
