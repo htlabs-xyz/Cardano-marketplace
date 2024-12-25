@@ -12,7 +12,7 @@
   },
   "validators": [
     {
-      "title": "contract.contract.spend",
+      "title": "marketplace.contract.spend",
       "datum": {
         "title": "_datum_option",
         "schema": {
@@ -43,7 +43,7 @@
       "hash": "0fe2b5c85ca3b5609d106fff471e854882c8fcc681d88dc928c241a8"
     },
     {
-      "title": "contract.contract.else",
+      "title": "marketplace.contract.else",
       "parameters": [
         {
           "title": "_platform",
@@ -128,6 +128,10 @@
             {
               "title": "royalties",
               "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "author",
+              "$ref": "#/definitions/VerificationKeyHash"
             },
             {
               "title": "order",
