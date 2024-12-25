@@ -24,7 +24,6 @@ pub fn check_output_utxo(
     datum_input.policy_id == datum_output.policy_id,
     datum_input.asset_name == datum_output.asset_name,
     datum_input.royalties == datum_output.royalties,
-    datum_input.order.owner == datum_output.order.owner,
     datum_input.order.value <= datum_output.order.value,
   }
 }
