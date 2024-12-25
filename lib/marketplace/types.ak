@@ -14,6 +14,7 @@ pub type MarketplaceDatum {
   seller: VerificationKeyHash,
   price: Int,
   royalties: Int,
+  author: VerificationKeyHash,
   order: Option<Ord>,
 }
 
