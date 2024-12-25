@@ -14,8 +14,8 @@ describe("Marketplace", function () {
             submitter: blockfrostProvider,
             key: {
                 type: "mnemonic",
-                // words: process.env.APP_MNEMONIC?.split(" ") || [],
-                words: process.env.APP_MNEMONIC_1?.split(" ") || [],
+                words: process.env.APP_MNEMONIC?.split(" ") || [],
+                // words: process.env.APP_MNEMONIC_1?.split(" ") || [],
             },
         });
     });
