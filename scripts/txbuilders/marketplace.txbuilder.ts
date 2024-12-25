@@ -1,4 +1,10 @@
-import { deserializeAddress, mConStr0, scriptAddress, serializeAddressObj } from "@meshsdk/core";
+import {
+    deserializeAddress,
+    mConStr0,
+    mConStr1,
+    scriptAddress,
+    serializeAddressObj,
+} from "@meshsdk/core";
 import { MeshAdapter } from "../adapters/mesh.adapter";
 import { IMarketplaceContract } from "../interfaces/imarketplace.interface";
 import { APP_WALLET_ADDRESS, appNetwork, EXCHANGE_FEE_PRICE } from "../constants";
@@ -193,7 +199,7 @@ export class MarketplaceContract extends MeshAdapter implements IMarketplaceCont
             .spendingPlutusScriptV3()
             .txIn(utxo.input.txHash, utxo.input.outputIndex)
             .txInInlineDatumPresent()
-            .txInRedeemerValue(mConStr0([]))
+            .txInRedeemerValue(mConStr1([]))
             .txInScript(this.marketplaceScriptCbor)
 
             .txOut(this.marketplaceAddress, [
