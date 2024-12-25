@@ -1,11 +1,13 @@
+use aiken/crypto.{VerificationKeyHash}
 use cardano/transaction.{OutputReference, Transaction}
+use marketplace/types.{MarketplaceDatum, MarketplaceRedeemer}
 
-validator contract {
+validator contract(_platform: VerificationKeyHash, _platform_fee: Int) {
   spend(
-    datum: Option<Void>,
-    redeemer: Void,
-    output_reference: OutputReference,
-    transaction: Transaction,
+    _datum_option: Option<MarketplaceDatum>,
+    _redeemer: MarketplaceRedeemer,
+    _output_reference: OutputReference,
+    _transaction: Transaction,
   ) {
     True
   }

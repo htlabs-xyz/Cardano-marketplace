@@ -10,5 +10,181 @@
     },
     "license": "Apache-2.0"
   },
-  "validators": []
+  "validators": [
+    {
+      "title": "contract.contract.spend",
+      "datum": {
+        "title": "_datum_option",
+        "schema": {
+          "$ref": "#/definitions/marketplace~1types~1MarketplaceDatum"
+        }
+      },
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/marketplace~1types~1MarketplaceRedeemer"
+        }
+      },
+      "parameters": [
+        {
+          "title": "_platform",
+          "schema": {
+            "$ref": "#/definitions/VerificationKeyHash"
+          }
+        },
+        {
+          "title": "_platform_fee",
+          "schema": {
+            "$ref": "#/definitions/Int"
+          }
+        }
+      ],
+      "compiledCode": "58c9010100323232323232232232253330063232323232533300b3370e900118061baa0011323232323253330103370e90000008a99980998091baa0071500216153330103370e90010008a99980998091baa0071500216153330103370e90020008a99980998091baa0071500216153330103370e90030008a99980998091baa0071500216163010375400c2944c044c048008c040004c034dd50008b1807180780118068009806801180580098041baa00114984d958dd68009bae0015734aae7555cf2ab9f5742ae881",
+      "hash": "0fe2b5c85ca3b5609d106fff471e854882c8fcc681d88dc928c241a8"
+    },
+    {
+      "title": "contract.contract.else",
+      "parameters": [
+        {
+          "title": "_platform",
+          "schema": {
+            "$ref": "#/definitions/VerificationKeyHash"
+          }
+        },
+        {
+          "title": "_platform_fee",
+          "schema": {
+            "$ref": "#/definitions/Int"
+          }
+        }
+      ],
+      "compiledCode": "58c9010100323232323232232232253330063232323232533300b3370e900118061baa0011323232323253330103370e90000008a99980998091baa0071500216153330103370e90010008a99980998091baa0071500216153330103370e90020008a99980998091baa0071500216153330103370e90030008a99980998091baa0071500216163010375400c2944c044c048008c040004c034dd50008b1807180780118068009806801180580098041baa00114984d958dd68009bae0015734aae7555cf2ab9f5742ae881",
+      "hash": "0fe2b5c85ca3b5609d106fff471e854882c8fcc681d88dc928c241a8"
+    }
+  ],
+  "definitions": {
+    "AssetName": {
+      "title": "AssetName",
+      "dataType": "bytes"
+    },
+    "Int": {
+      "dataType": "integer"
+    },
+    "Option$marketplace/types/Ord": {
+      "title": "Option",
+      "anyOf": [
+        {
+          "title": "Some",
+          "description": "An optional value.",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "$ref": "#/definitions/marketplace~1types~1Ord"
+            }
+          ]
+        },
+        {
+          "title": "None",
+          "description": "Nothing.",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        }
+      ]
+    },
+    "PolicyId": {
+      "title": "PolicyId",
+      "dataType": "bytes"
+    },
+    "VerificationKeyHash": {
+      "title": "VerificationKeyHash",
+      "dataType": "bytes"
+    },
+    "marketplace/types/MarketplaceDatum": {
+      "title": "MarketplaceDatum",
+      "anyOf": [
+        {
+          "title": "MarketplaceDatum",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "policy_id",
+              "$ref": "#/definitions/PolicyId"
+            },
+            {
+              "title": "asset_name",
+              "$ref": "#/definitions/AssetName"
+            },
+            {
+              "title": "seller",
+              "$ref": "#/definitions/VerificationKeyHash"
+            },
+            {
+              "title": "price",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "royalties",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "order",
+              "$ref": "#/definitions/Option$marketplace~1types~1Ord"
+            }
+          ]
+        }
+      ]
+    },
+    "marketplace/types/MarketplaceRedeemer": {
+      "title": "MarketplaceRedeemer",
+      "anyOf": [
+        {
+          "title": "Sell",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        },
+        {
+          "title": "Buy",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        },
+        {
+          "title": "Refund",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": []
+        },
+        {
+          "title": "Order",
+          "dataType": "constructor",
+          "index": 3,
+          "fields": []
+        }
+      ]
+    },
+    "marketplace/types/Ord": {
+      "title": "Ord",
+      "anyOf": [
+        {
+          "title": "Ord",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "owner",
+              "$ref": "#/definitions/VerificationKeyHash"
+            },
+            {
+              "title": "value",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    }
+  }
 }
