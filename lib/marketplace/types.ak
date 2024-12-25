@@ -2,9 +2,7 @@ use aiken/crypto.{VerificationKeyHash}
 use cardano/assets.{AssetName, PolicyId}
 
 pub type MarketplaceRedeemer {
-  Sell
-  Buy
-  Refund
+  Payer
   Order
 }
 

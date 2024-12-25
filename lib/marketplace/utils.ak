@@ -1,7 +1,7 @@
-use aiken/address.{Address}
+use cardano/address.{Address}
 use aiken/crypto.{VerificationKeyHash}
-use aiken/list
-use cardano/assets.{lovelace_of}
+use aiken/collection/list
+use cardano/assets.{lovelace_of, without_lovelace}
 use cardano/transaction.{Output, Transaction}
 
 // The function checks the amount
