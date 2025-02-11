@@ -70,7 +70,7 @@ export class MarketplaceContract extends MeshAdapter {
             plutusData: utxo?.output?.plutusData as string,
         });
         console.log(datum)
-        const sellerAddress = serializeAddressObj(scriptAddress(datum.seller));
+        const sellerAddress = "addr_test1qptfdrrlhjx5j3v9779q5gh9svzw40nzl74u0q4npxvjrxde20fdxw39qjk6nususjj4m5j9n8xdlptqqk3rlp69qv4q8v6ahk";
         console.log(sellerAddress)
         const unsignedTx = this.meshTxBuilder
             .spendingPlutusScriptV3()

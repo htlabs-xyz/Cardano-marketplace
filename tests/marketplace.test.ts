@@ -22,13 +22,14 @@ describe("Marketplace", function () {
     jest.setTimeout(60000);
 
     test("Sell", async function () {
-        // return;
+        return;
+        console.log(wallet.getChangeAddress());
         const marketplaceContract: MarketplaceContract = new MarketplaceContract({
             wallet: wallet,
         });
         const unsignedTx: string = await marketplaceContract.sell({
             policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
-            assetName: "4e677579e1bb856e20447579204b68c3a16e68",
+            assetName: "656c77303031",
             price: 10000000,
             amount: 1,
         });
@@ -44,12 +45,13 @@ describe("Marketplace", function () {
 
     test("Buy", async function () {
         // return;
+         console.log(wallet.getChangeAddress());
         const marketplaceContract: MarketplaceContract = new MarketplaceContract({
             wallet: wallet,
         });
         const unsignedTx: string = await marketplaceContract.buy({
-            policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
-            assetName: "4e677579e1bb856e20447579204b68c3a16e68",
+             policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
+            assetName: "656c77303031",
         });
         const signedTx = await wallet.signTx(unsignedTx, true);
         const txHash = await wallet.submitTx(signedTx);
