@@ -14,8 +14,8 @@ describe("Marketplace", function () {
             submitter: blockfrostProvider,
             key: {
                 type: "mnemonic",
-                // words: process.env.BUYER?.split(" ") || [],
-                words: process.env.SELLER?.split(" ") || [],
+                words: process.env.BUYER?.split(" ") || [],
+                // words: process.env.SELLER?.split(" ") || [],
             },
         });
     });
@@ -32,6 +32,7 @@ describe("Marketplace", function () {
             price: 10000000,
             amount: 1,
         });
+        console.log(unsignedTx);
         const signedTx = await wallet.signTx(unsignedTx, true);
         const txHash = await wallet.submitTx(signedTx);
         console.log("https://preprod.cexplorer.io/tx/" + txHash);
