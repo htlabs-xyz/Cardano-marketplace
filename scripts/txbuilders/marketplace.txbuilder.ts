@@ -6,11 +6,10 @@ import {
     serializeAddressObj,
 } from "@meshsdk/core";
 import { MeshAdapter } from "../adapters/mesh.adapter";
-import { IMarketplaceContract } from "../interfaces/imarketplace.interface";
 import { APP_WALLET_ADDRESS, appNetwork, EXCHANGE_FEE_PRICE } from "../constants";
 import convertInlineDatum from "../helpers/convert-inline-datum";
 
-export class MarketplaceContract extends MeshAdapter implements IMarketplaceContract {
+export class MarketplaceContract extends MeshAdapter {
     /**
      * @method SELL
      *

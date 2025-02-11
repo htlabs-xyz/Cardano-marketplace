@@ -1,33 +1,8 @@
 use aiken/collection/list
 use aiken/crypto.{VerificationKeyHash}
 use cardano/address.{Address}
-use cardano/assets.{flatten, lovelace_of, without_lovelace}
+use cardano/assets.{lovelace_of}
 use cardano/transaction.{Output, Transaction}
-use marketplace/types.{MarketplaceDatum}
-
-// check the output utxos containing the nft
-pub fn check_output_utxo(
-  output: Output,
-  datum_input: MarketplaceDatum,
-  datum_output: MarketplaceDatum,
-) -> Bool {
-  let output_value =
-    output.value
-      |> without_lovelace()
-      |> flatten()
-
-  and {
-    list.length(output_value) == 1,
-    datum_input.seller == datum_output.seller,
-    datum_input.price == datum_output.price,
-    datum_input.author == datum_output.author,
-    datum_input.policy_id == datum_output.policy_id,
-    datum_input.asset_name == datum_output.asset_name,
-    datum_input.royalties == datum_output.royalties,
-    datum_input.order.owner == datum_output.order.owner,
-    datum_input.order.value <= datum_output.order.value,
-  }
-}
 
 // The function checks the amount
 pub fn check_amount(output: Output, price: Int) -> Bool {
@@ -48,13 +23,9 @@ pub fn must_be_signed_by(transaction: Transaction, vk: VerificationKeyHash) {
 }
 
 // The function checks whether the output exists or not
-pub fn check_none(
-  output_seller: Option<Output>,
-  output_author: Option<Output>,
-  output_demarket: Option<Output>,
-) -> Bool {
+pub fn check_none(output_seller: Option<Output>) -> Bool {
   // If one of the 3 outputs does not exist, the function will return False
-  if output_seller == None || output_author == None || output_demarket == None {
+  if output_seller == None {
     False
   } else {
     // Otherwise, the function will return True
