@@ -14,7 +14,8 @@ describe("Marketplace", function () {
             submitter: blockfrostProvider,
             key: {
                 type: "mnemonic",
-                words: process.env.BUYER?.split(" ") || [],
+                // words: process.env.BUYER?.split(" ") || [],
+                words: process.env.SELLER?.split(" ") || [],
             },
         });
     });
@@ -27,7 +28,7 @@ describe("Marketplace", function () {
         });
         const unsignedTx: string = await marketplaceContract.sell({
             policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
-            assetName: "6d6f6e6b6579303031",
+            assetName: "53656c6c657220",
             price: 10000000,
             amount: 1,
         });
@@ -46,10 +47,9 @@ describe("Marketplace", function () {
             wallet: wallet,
         });
         const unsignedTx: string = await marketplaceContract.buy({
-            policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
-            assetName: "6d6f6e6b6579303031",
+          policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
+            assetName: "53656c6c657220",
         });
-        console.log(unsignedTx);
         const signedTx = await wallet.signTx(unsignedTx, true);
         const txHash = await wallet.submitTx(signedTx);
         console.log("https://preprod.cexplorer.io/tx/" + txHash);
@@ -65,8 +65,8 @@ describe("Marketplace", function () {
             wallet: wallet,
         });
         const unsignedTx: string = await marketplaceContract.refund({
-            policyId: "71cc52bee302c0a6ae17221754c4d64d210de8b4cb6a2e8feb294220",
-            assetName: "000de14043495036382047656e657261746f7273",
+            policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
+            assetName: "53656c6c657220",
             amount: 1,
         });
         const signedTx = await wallet.signTx(unsignedTx, true);

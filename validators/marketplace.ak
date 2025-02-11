@@ -22,11 +22,10 @@ validator contract {
             datum_output.price,
             address.from_verification_key(datum_output.seller),
           )
-        let check_none_output = utils.check_none(output_seller)
-
-        when check_none_output is {
-          True -> True
-          False -> False
+        if output_seller == None {
+          False
+        } else {
+          True
         }
       }
     }

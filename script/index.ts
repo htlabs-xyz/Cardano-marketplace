@@ -64,16 +64,19 @@ export class MarketplaceContract extends MeshAdapter {
     }) => {
         const { utxos, walletAddress, collateral } = await this.getWalletForTx();
         const utxo = await this.getAddressUTXOAsset(this.marketplaceAddress, policyId + assetName);
+        console.log(utxo)
         if (!utxo) throw new Error("UTxO not found");
         const datum = await this.readPlutusData({
             plutusData: utxo?.output?.plutusData as string,
         });
+        console.log(datum)
         const sellerAddress = serializeAddressObj(scriptAddress(datum.seller));
+        console.log(sellerAddress)
         const unsignedTx = this.meshTxBuilder
             .spendingPlutusScriptV3()
             .txIn(utxo.input.txHash, utxo.input.outputIndex)
-            .spendingReferenceTxInInlineDatumPresent()
-            .spendingReferenceTxInRedeemerValue(mConStr0([]))
+            .txInInlineDatumPresent()
+            .txInRedeemerValue(mConStr0([]))
             .txInScript(this.marketplaceScriptCbor)
 
             .txOut(sellerAddress, [
