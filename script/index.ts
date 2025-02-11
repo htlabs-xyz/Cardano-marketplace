@@ -5,9 +5,7 @@ import {
     scriptAddress,
     serializeAddressObj,
 } from "@meshsdk/core";
-import { MeshAdapter } from "../adapters/mesh.adapter";
-import { APP_WALLET_ADDRESS, appNetwork, EXCHANGE_FEE_PRICE } from "../constants";
-import convertInlineDatum from "../helpers/convert-inline-datum";
+import { MeshAdapter } from "./mesh";
 
 export class MarketplaceContract extends MeshAdapter {
     /**
@@ -18,17 +16,16 @@ export class MarketplaceContract extends MeshAdapter {
     sell = async ({
         policyId,
         assetName,
+        amount = 1,
         price,
-        amount,
     }: {
         policyId: string;
         assetName: string;
-        price: number;
         amount: number;
+        price: number;
     }): Promise<string> => {
         const { utxos, walletAddress, collateral } = await this.getWalletForTx();
         const sellerPaymentKeyHash = deserializeAddress(walletAddress).pubKeyHash;
-        const authorPaymentkeyHash = deserializeAddress(walletAddress).pubKeyHash;
         const unsignedTx = this.meshTxBuilder
             .txOut(this.marketplaceAddress, [
                 {
@@ -36,17 +33,7 @@ export class MarketplaceContract extends MeshAdapter {
                     unit: policyId + assetName,
                 },
             ])
-            .txOutInlineDatumValue(
-                mConStr0([
-                    policyId,
-                    assetName,
-                    sellerPaymentKeyHash,
-                    price,
-                    price,
-                    authorPaymentkeyHash,
-                    mConStr0([authorPaymentkeyHash, price]),
-                ]),
-            )
+            .txOutInlineDatumValue(mConStr0([policyId, assetName, sellerPaymentKeyHash, price]))
             .changeAddress(walletAddress)
             .requiredSignerHash(deserializeAddress(walletAddress).pubKeyHash)
             .selectUtxosFrom(utxos)
@@ -56,7 +43,7 @@ export class MarketplaceContract extends MeshAdapter {
                 collateral.output.amount,
                 collateral.output.address,
             )
-            .setNetwork(appNetwork)
+            .setNetwork("preprod")
             .complete();
 
         return unsignedTx;
@@ -66,16 +53,22 @@ export class MarketplaceContract extends MeshAdapter {
      * @method BUY
      *
      */
-    buy = async ({ policyId, assetName }: { policyId: string; assetName: string }) => {
+    buy = async ({
+        policyId,
+        assetName,
+        amount = 1,
+    }: {
+        policyId: string;
+        assetName: string;
+        amount?: number;
+    }) => {
         const { utxos, walletAddress, collateral } = await this.getWalletForTx();
         const utxo = await this.getAddressUTXOAsset(this.marketplaceAddress, policyId + assetName);
         if (!utxo) throw new Error("UTxO not found");
         const datum = await this.readPlutusData({
             plutusData: utxo?.output?.plutusData as string,
         });
-        const authorAddress = serializeAddressObj(scriptAddress(datum.author));
         const sellerAddress = serializeAddressObj(scriptAddress(datum.seller));
-        console.log(datum.price, datum.royalties);
         const unsignedTx = this.meshTxBuilder
             .spendingPlutusScriptV3()
             .txIn(utxo.input.txHash, utxo.input.outputIndex)
@@ -89,23 +82,10 @@ export class MarketplaceContract extends MeshAdapter {
                     quantity: String(datum?.price),
                 },
             ])
-            .txOut(authorAddress, [
-                {
-                    unit: "lovelace",
-                    quantity: String(datum?.royalties),
-                },
-            ])
             .txOut(walletAddress, [
                 {
                     unit: policyId + assetName,
-                    quantity: "1",
-                },
-            ])
-
-            .txOut(APP_WALLET_ADDRESS, [
-                {
-                    unit: "lovelace",
-                    quantity: EXCHANGE_FEE_PRICE,
+                    quantity: String(amount),
                 },
             ])
 
@@ -118,7 +98,7 @@ export class MarketplaceContract extends MeshAdapter {
                 collateral.output.amount,
                 collateral.output.address,
             )
-            .setNetwork(appNetwork)
+            .setNetwork("preprod")
             .complete();
         return unsignedTx;
     };
@@ -130,7 +110,7 @@ export class MarketplaceContract extends MeshAdapter {
     refund = async ({
         policyId,
         assetName,
-        amount,
+        amount = 1,
     }: {
         policyId: string;
         assetName: string;
@@ -142,8 +122,8 @@ export class MarketplaceContract extends MeshAdapter {
         const unsignedTx = this.meshTxBuilder
             .spendingPlutusScriptV3()
             .txIn(utxo.input.txHash, utxo.input.outputIndex)
-            .spendingReferenceTxInInlineDatumPresent()
-            .spendingReferenceTxInRedeemerValue(mConStr0([]))
+            .txInInlineDatumPresent()
+            .txInRedeemerValue(mConStr0([]))
             .txInScript(this.marketplaceScriptCbor)
 
             .txOut(walletAddress, [
@@ -152,13 +132,6 @@ export class MarketplaceContract extends MeshAdapter {
                     quantity: String(amount),
                 },
             ])
-
-            .txOut(APP_WALLET_ADDRESS, [
-                {
-                    unit: "lovelace",
-                    quantity: EXCHANGE_FEE_PRICE,
-                },
-            ])
             .changeAddress(walletAddress)
             .requiredSignerHash(deserializeAddress(walletAddress).pubKeyHash)
             .selectUtxosFrom(utxos)
@@ -168,63 +141,43 @@ export class MarketplaceContract extends MeshAdapter {
                 collateral.output.amount,
                 collateral.output.address,
             )
-            .setNetwork(appNetwork)
+            .setNetwork("preprod")
             .complete();
         return unsignedTx;
     };
-
     /**
-     * @method ORDER
+     * @method UPDATE
      *
      */
-    order = async ({
+    update = async ({
         policyId,
         assetName,
-        orderPrice,
+        amount = 1,
+        price,
     }: {
         policyId: string;
         assetName: string;
-        orderPrice: number;
+        amount: number;
+        price: number;
     }) => {
         const { utxos, walletAddress, collateral } = await this.getWalletForTx();
-
         const utxo = await this.getAddressUTXOAsset(this.marketplaceAddress, policyId + assetName);
-        if (!utxo) throw new Error("UTxO not found");
-        const datum = await this.readPlutusData({
-            plutusData: utxo?.output?.plutusData as string,
-        });
-
+        const sellerPaymentKeyHash = deserializeAddress(walletAddress).pubKeyHash;
         const unsignedTx = this.meshTxBuilder
             .spendingPlutusScriptV3()
             .txIn(utxo.input.txHash, utxo.input.outputIndex)
             .txInInlineDatumPresent()
-            .txInRedeemerValue(mConStr1([]))
+            .txInRedeemerValue(mConStr0([]))
             .txInScript(this.marketplaceScriptCbor)
 
-            .txOut(this.marketplaceAddress, [
+            .txOut(walletAddress, [
                 {
                     unit: policyId + assetName,
-                    quantity: String(1),
+                    quantity: String(amount),
                 },
             ])
-            .txOutInlineDatumValue(
-                mConStr0([
-                    datum.policyId,
-                    datum.assetName,
-                    datum.seller,
-                    datum.price,
-                    datum.royalties,
-                    datum.author,
-                    mConStr0([deserializeAddress(walletAddress).pubKeyHash, orderPrice]),
-                ]),
-            )
+            .txOutInlineDatumValue(mConStr0([policyId, assetName, sellerPaymentKeyHash, price]))
 
-            .txOut(APP_WALLET_ADDRESS, [
-                {
-                    unit: "lovelace",
-                    quantity: EXCHANGE_FEE_PRICE,
-                },
-            ])
             .changeAddress(walletAddress)
             .requiredSignerHash(deserializeAddress(walletAddress).pubKeyHash)
             .selectUtxosFrom(utxos)
@@ -234,7 +187,7 @@ export class MarketplaceContract extends MeshAdapter {
                 collateral.output.amount,
                 collateral.output.address,
             )
-            .setNetwork(appNetwork)
+            .setNetwork("preprod")
             .complete();
         return unsignedTx;
     };

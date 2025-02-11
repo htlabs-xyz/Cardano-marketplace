@@ -1,29 +1,17 @@
-import {
-    applyParamsToScript,
-    deserializeAddress,
-    IFetcher,
-    MeshTxBuilder,
-    MeshWallet,
-    PlutusScript,
-    serializePlutusScript,
-    UTxO,
-} from "@meshsdk/core";
-import { Plutus } from "../types";
-import { APP_WALLET_ADDRESS, title } from "../constants";
-import plutus from "../../plutus.json";
-import { appNetworkId } from "../constants";
-import { blockfrostProvider } from "../libs/blockfrost";
-import convertInlineDatum from "../helpers/convert-inline-datum";
+import { applyParamsToScript, BrowserWallet, IFetcher, MeshTxBuilder, MeshWallet, PlutusScript, serializePlutusScript, UTxO } from "@meshsdk/core";
+import blueprint from "../plutus.json";
+import { blockfrostProvider, convertInlineDatum } from "./common";
+import { Plutus } from "./type";
 
 export class MeshAdapter {
     protected fetcher: IFetcher;
     protected wallet: MeshWallet;
-    protected pubKeyExchange: string;
     protected meshTxBuilder: MeshTxBuilder;
     protected marketplaceAddress: string;
     protected marketplaceScript: PlutusScript;
     protected marketplaceScriptCbor: string;
     protected marketplaceCompileCode: string;
+    
     constructor({ wallet = null! }: { wallet?: MeshWallet }) {
         this.wallet = wallet;
         this.fetcher = blockfrostProvider;
@@ -31,13 +19,12 @@ export class MeshAdapter {
             fetcher: this.fetcher,
             evaluator: blockfrostProvider,
         });
-        this.pubKeyExchange = deserializeAddress(APP_WALLET_ADDRESS).pubKeyHash;
-        this.marketplaceCompileCode = this.readValidator(plutus as Plutus, title.marketplace);
+        this.marketplaceCompileCode = this.readValidator(
+            blueprint as Plutus,
+            "marketplace.contract.spend",
+        );
 
-        this.marketplaceScriptCbor = applyParamsToScript(this.marketplaceCompileCode, [
-            this.pubKeyExchange,
-            BigInt(1),
-        ]);
+        this.marketplaceScriptCbor = applyParamsToScript(this.marketplaceCompileCode, []);
 
         this.marketplaceScript = {
             code: this.marketplaceScriptCbor,
@@ -47,7 +34,7 @@ export class MeshAdapter {
         this.marketplaceAddress = serializePlutusScript(
             this.marketplaceScript,
             undefined,
-            appNetworkId,
+            0,
             false,
         ).address;
     }
@@ -100,12 +87,6 @@ export class MeshAdapter {
             assetName: datum?.fields[1].bytes,
             seller: datum?.fields[2].bytes,
             price: datum?.fields[3].int,
-            royalties: datum?.fields[4].int,
-            author: datum?.fields[5].bytes,
-            order: {
-                owner: datum?.fields[6].fields[0].bytes,
-                price: datum?.fields[6].fields[1].int,
-            },
         };
     };
 

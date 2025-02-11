@@ -1,10 +1,9 @@
+import { BlockfrostProvider } from "@meshsdk/core";
 import { decodeFirst, Tagged } from "cbor";
 
-type Props = {
-    inlineDatum: string;
-};
+export const blockfrostProvider = new BlockfrostProvider(process.env.BLOCKFROST_API_KEY || "");
 
-function convertToJSON(decoded: any) {
+export function convertToJSON(decoded: any) {
     if (Buffer.isBuffer(decoded)) {
         return { bytes: decoded.toString("hex") };
     } else if (typeof decoded === "number") {
@@ -30,7 +29,7 @@ function convertToJSON(decoded: any) {
         };
     }
 }
-const convertInlineDatum = async function ({ inlineDatum }: Props) {
+export const convertInlineDatum = async function ({ inlineDatum }: { inlineDatum: string }) {
     try {
         const cborDatum: Buffer = Buffer.from(inlineDatum, "hex");
         const decoded = await decodeFirst(cborDatum);
@@ -43,5 +42,3 @@ const convertInlineDatum = async function ({ inlineDatum }: Props) {
         return null;
     }
 };
-
-export default convertInlineDatum;
