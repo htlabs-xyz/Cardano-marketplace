@@ -1,12 +1,12 @@
 use cardano/address
 use cardano/transaction.{OutputReference, Transaction}
-use marketplace/types.{MarketplaceDatum, MarketplaceRedeemer}
+use marketplace/types.{MarketplaceDatum}
 use marketplace/utils
 
 validator contract {
   spend(
     datum_option: Option<MarketplaceDatum>,
-    _redeemer: MarketplaceRedeemer,
+    _redeemer: Void,
     _output_reference: OutputReference,
     transaction: Transaction,
   ) {
@@ -15,19 +15,12 @@ validator contract {
     let seller_sign = utils.must_be_signed_by(transaction, datum_output.seller)
     when seller_sign is {
       True -> True
-      False -> {
-        let output_seller =
-          utils.find_output(
-            outputs,
-            datum_output.price,
-            address.from_verification_key(datum_output.seller),
-          )
-        if output_seller == None {
-          False
-        } else {
-          True
-        }
-      }
+      False ->
+        utils.find_output(
+          outputs,
+          datum_output.price,
+          address.from_verification_key(datum_output.seller),
+        ) != None
     }
   }
 
