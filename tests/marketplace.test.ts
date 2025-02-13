@@ -1,21 +1,30 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { blockfrostProvider } from "../scripts/libs/blockfrost";
 import { describe, test, expect, beforeEach, jest } from "@jest/globals";
 import { MeshWallet } from "@meshsdk/core";
-import { MarketplaceContract } from "../scripts";
+import { blockfrostProvider } from "../script/common";
+import { MarketplaceContract } from "../script";
 
 describe("Marketplace", function () {
     let txHashTemp: string;
-    let wallet: MeshWallet;
+    let buyerWallet: MeshWallet;
+    let sellerWallet: MeshWallet;
     beforeEach(async function () {
-        wallet = new MeshWallet({
+        buyerWallet = new MeshWallet({
             networkId: 0,
             fetcher: blockfrostProvider,
             submitter: blockfrostProvider,
             key: {
                 type: "mnemonic",
-                // words: process.env.APP_MNEMONIC?.split(" ") || [],
-                words: process.env.APP_MNEMONIC_1?.split(" ") || [],
+                words: process.env.BUYER?.split(" ") || [],
+            },
+        });
+        sellerWallet = new MeshWallet({
+            networkId: 0,
+            fetcher: blockfrostProvider,
+            submitter: blockfrostProvider,
+            key: {
+                type: "mnemonic",
+                words: process.env.SELLER?.split(" ") || [],
             },
         });
     });
@@ -24,17 +33,18 @@ describe("Marketplace", function () {
     test("Sell", async function () {
         return;
         const marketplaceContract: MarketplaceContract = new MarketplaceContract({
-            wallet: wallet,
+            wallet: sellerWallet,
         });
         const unsignedTx: string = await marketplaceContract.sell({
-            policyId: "71cc52bee302c0a6ae17221754c4d64d210de8b4cb6a2e8feb294220",
-            assetName: "000de14031373131",
+            policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
+            assetName: "656c77303031",
             price: 10000000,
             amount: 1,
         });
-        const signedTx = wallet.signTx(unsignedTx, true);
-        const txHash = await wallet.submitTx(signedTx);
-        console.log("https://preview.cexplorer.io/tx/" + txHash);
+        console.log(unsignedTx);
+        const signedTx = await sellerWallet.signTx(unsignedTx, true);
+        const txHash = await sellerWallet.submitTx(signedTx);
+        console.log("https://preprod.cexplorer.io/tx/" + txHash);
         txHashTemp = txHash;
         blockfrostProvider.onTxConfirmed(txHash, () => {
             expect(txHash.length).toBe(64);
@@ -42,17 +52,17 @@ describe("Marketplace", function () {
     });
 
     test("Buy", async function () {
-        return;
+        // return;
         const marketplaceContract: MarketplaceContract = new MarketplaceContract({
-            wallet: wallet,
+            wallet: buyerWallet,
         });
         const unsignedTx: string = await marketplaceContract.buy({
-            policyId: "71cc52bee302c0a6ae17221754c4d64d210de8b4cb6a2e8feb294220",
-            assetName: "000de14043495036382047656e657261746f7273",
+            policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
+            assetName: "656c77303031",
         });
-        const signedTx = wallet.signTx(unsignedTx, true);
-        const txHash = await wallet.submitTx(signedTx);
-        console.log("https://preview.cexplorer.io/tx/" + txHash);
+        const signedTx = await buyerWallet.signTx(unsignedTx, true);
+        const txHash = await buyerWallet.submitTx(signedTx);
+        console.log("https://preprod.cexplorer.io/tx/" + txHash);
         txHashTemp = txHash;
         blockfrostProvider.onTxConfirmed(txHash, () => {
             expect(txHash.length).toBe(64);
@@ -62,34 +72,15 @@ describe("Marketplace", function () {
     test("Refund", async function () {
         return;
         const marketplaceContract: MarketplaceContract = new MarketplaceContract({
-            wallet: wallet,
+            wallet: sellerWallet,
         });
         const unsignedTx: string = await marketplaceContract.refund({
-            policyId: "71cc52bee302c0a6ae17221754c4d64d210de8b4cb6a2e8feb294220",
-            assetName: "000de14043495036382047656e657261746f7273",
+            policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
+            assetName: "4e677579e1bb856e20447579204b68c3a16e68",
             amount: 1,
         });
-        const signedTx = wallet.signTx(unsignedTx, true);
-        const txHash = await wallet.submitTx(signedTx);
-        console.log("https://preview.cexplorer.io/tx/" + txHash);
-        txHashTemp = txHash;
-        blockfrostProvider.onTxConfirmed(txHash, () => {
-            expect(txHash.length).toBe(64);
-        });
-    });
-
-    test("Order", async function () {
-        // return;
-        const marketplaceContract: MarketplaceContract = new MarketplaceContract({
-            wallet: wallet,
-        });
-        const unsignedTx: string = await marketplaceContract.order({
-            policyId: "71cc52bee302c0a6ae17221754c4d64d210de8b4cb6a2e8feb294220",
-            assetName: "000de14031373131",
-            orderPrice: 10000000000,
-        });
-        const signedTx = wallet.signTx(unsignedTx, true);
-        const txHash = await wallet.submitTx(signedTx);
+        const signedTx = await sellerWallet.signTx(unsignedTx, true);
+        const txHash = await sellerWallet.submitTx(signedTx);
         console.log("https://preview.cexplorer.io/tx/" + txHash);
         txHashTemp = txHash;
         blockfrostProvider.onTxConfirmed(txHash, () => {
