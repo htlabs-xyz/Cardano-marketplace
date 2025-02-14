@@ -32,13 +32,11 @@ describe("Marketplace", function () {
 
     test("Sell", async function () {
         return;
-        console.log(wallet.getChangeAddress());
+
         const marketplaceContract: MarketplaceContract = new MarketplaceContract({
             wallet: sellerWallet,
         });
         const unsignedTx: string = await marketplaceContract.sell({
-            policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
-            assetName: "656c77303031",
             policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
             assetName: "656c77303031",
             price: 10000000,
@@ -56,7 +54,6 @@ describe("Marketplace", function () {
 
     test("Buy", async function () {
         // return;
-         console.log(wallet.getChangeAddress());
         const marketplaceContract: MarketplaceContract = new MarketplaceContract({
             wallet: buyerWallet,
         });
