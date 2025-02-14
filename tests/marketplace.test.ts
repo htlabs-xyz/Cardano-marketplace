@@ -32,7 +32,6 @@ describe("Marketplace", function () {
 
     test("Sell", async function () {
         return;
-
         const marketplaceContract: MarketplaceContract = new MarketplaceContract({
             wallet: sellerWallet,
         });
@@ -53,7 +52,7 @@ describe("Marketplace", function () {
     });
 
     test("Buy", async function () {
-        // return;
+        return;
         const marketplaceContract: MarketplaceContract = new MarketplaceContract({
             wallet: buyerWallet,
         });
