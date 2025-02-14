@@ -80,5 +80,4 @@ describe("Marketplace", function () {
             expect(txHash.length).toBe(64);
         });
     });
-
 });

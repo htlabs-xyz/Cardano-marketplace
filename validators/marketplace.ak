@@ -31,7 +31,6 @@ validator contract {
     }
   }
 
-  /// ADA > ... - > true
   else(_) {
     fail
   }
