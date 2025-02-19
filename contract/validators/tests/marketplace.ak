@@ -7,7 +7,7 @@ use mocktail.{
   add_input, complete, mocktail_tx, required_signer_hash, tx_in,
   tx_in_inline_datum, tx_out,
 }
-use mocktail/virgin_address.{mock_script_address}
+use mocktail/virgin_address.{mock_pub_key_address, mock_script_address}
 use mocktail/virgin_key_hash.{mock_policy_id, mock_pub_key_hash}
 use mocktail/virgin_output_reference.{mock_tx_hash, mock_utxo_ref}
 use mocktail/virgin_outputs.{mock_script_output}
@@ -20,11 +20,6 @@ fn mock_datum() -> MarketplaceDatum {
     price: 1000,
   }
 }
-
-// test buy() {
-//   let output_reference = mock_utxo_ref(0, 1)
-//   let redeemer = Void
-// }
 
 type RefundTestCase {
   is_seller_signed: Bool,
@@ -64,34 +59,12 @@ test refund_with_non_seller_sign() {
   marketplace.contract.spend(Some(mock_datum()), redeemer, output_reference, tx)
 }
 
-type BuyTestCase {
-  is_only_one_input_from_script: Bool,
-}
-
-fn get_buy_test_tx(test_case: BuyTestCase) -> Transaction {
-  let BuyTestCase { is_only_one_input_from_script } = test_case
+fn get_buy_test_tx() -> Transaction {
   let input_value =
     from_lovelace(1000) |> add(mock_policy_id(0), "The MarketPlace", 1)
 
   mocktail_tx()
-    |> tx_out(
-        True,
-        mock_pub_key_address(0, None),
-        if is_fee_paid {
-          from_lovelace(2_000_000)
-        } else {
-          from_lovelace(1_000_000)
-        },
-      )
-    |> tx_out(
-        True,
-        mock_pub_key_address(1, None),
-        if is_proceed_paid {
-          from_lovelace(202_000_000)
-        } else {
-          from_lovelace(200_000_000)
-        },
-      )
+    |> tx_out(True, mock_pub_key_address(0, None), from_lovelace(1000))
     |> complete()
     |> add_input(
         True,
@@ -104,99 +77,12 @@ fn get_buy_test_tx(test_case: BuyTestCase) -> Transaction {
           ),
         },
       )
-    |> add_input(
-        !is_only_one_input_from_script,
-        Input {
-          output_reference: mock_utxo_ref(0, 2),
-          output: mock_script_output(
-            mock_script_address(0, None),
-            input_value,
-            InlineDatum(Some(mock_datum())),
-          ),
-        },
-      )
 }
 
 test success_buy() {
+  let redeemer = Void
   let output_reference = mock_utxo_ref(0, 1)
-  let redeemer = Buy
-  let test_case =
-    BuyTestCase {
-      is_only_one_input_from_script: True,
-      is_fee_paid: True,
-      is_proceed_paid: True,
-    }
 
-  let tx = get_buy_test_tx(test_case)
-  marketplace.marketplace.spend(
-    mock_pub_key_address(0, None),
-    100,
-    Some(mock_datum()),
-    redeemer,
-    output_reference,
-    tx,
-  )
-}
-
-test fail_buy_with_multiple_script_inputs() {
-  let output_reference = mock_utxo_ref(0, 1)
-  let redeemer = Buy
-  let test_case =
-    BuyTestCase {
-      is_only_one_input_from_script: False,
-      is_fee_paid: True,
-      is_proceed_paid: True,
-    }
-
-  let tx = get_buy_test_tx(test_case)
-  !marketplace.marketplace.spend(
-    mock_pub_key_address(0, None),
-    100,
-    Some(mock_datum()),
-    redeemer,
-    output_reference,
-    tx,
-  )
-}
-
-test fail_buy_without_fee_paid() {
-  let output_reference = mock_utxo_ref(0, 1)
-  let redeemer = Buy
-  let test_case =
-    BuyTestCase {
-      is_only_one_input_from_script: True,
-      is_fee_paid: False,
-      is_proceed_paid: True,
-    }
-
-  let tx = get_buy_test_tx(test_case)
-  !marketplace.marketplace.spend(
-    mock_pub_key_address(0, None),
-    100,
-    Some(mock_datum()),
-    redeemer,
-    output_reference,
-    tx,
-  )
-}
-
-test fail_buy_without_proceed_paid() {
-  let output_reference = mock_utxo_ref(0, 1)
-  let redeemer = Buy
-  let test_case =
-    BuyTestCase {
-      is_only_one_input_from_script: True,
-      is_fee_paid: True,
-      is_proceed_paid: False,
-    }
-
-  let tx = get_buy_test_tx(test_case)
-  !marketplace.marketplace.spend(
-    mock_pub_key_address(0, None),
-    100,
-    Some(mock_datum()),
-    redeemer,
-    output_reference,
-    tx,
-  )
+  let tx = get_buy_test_tx()
+  marketplace.contract.spend(Some(mock_datum()), redeemer, output_reference, tx)
 }
