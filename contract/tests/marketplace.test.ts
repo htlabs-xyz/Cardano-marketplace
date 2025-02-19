@@ -52,12 +52,12 @@ describe("Marketplace", function () {
     });
 
     test("Buy", async function () {
-        // return;
+        return;
         const marketplaceContract: MarketplaceContract = new MarketplaceContract({
             wallet: buyerWallet,
         });
         const unsignedTx: string = await marketplaceContract.buy({
-            policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
+             policyId: "444bdbc931ef892fcef8ae8c80bd1c39866f1806bec8a16db42872f4",
             assetName: "656c77303031",
         });
         const signedTx = await buyerWallet.signTx(unsignedTx, true);

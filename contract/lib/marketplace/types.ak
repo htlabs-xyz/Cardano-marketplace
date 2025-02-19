@@ -7,3 +7,4 @@ pub type MarketplaceDatum {
   seller: VerificationKeyHash,
   price: Int,
 }
+
