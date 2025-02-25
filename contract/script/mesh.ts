@@ -5,14 +5,14 @@ import { Plutus } from "./type";
 
 export class MeshAdapter {
     protected fetcher: IFetcher;
-    protected wallet: MeshWallet;
+    protected wallet: MeshWallet | BrowserWallet;
     protected meshTxBuilder: MeshTxBuilder;
     protected marketplaceAddress: string;
     protected marketplaceScript: PlutusScript;
     protected marketplaceScriptCbor: string;
     protected marketplaceCompileCode: string;
     
-    constructor({ wallet = null! }: { wallet?: MeshWallet }) {
+    constructor({ wallet = null! }: { wallet?: MeshWallet| BrowserWallet }) {
         this.wallet = wallet;
         this.fetcher = blockfrostProvider;
         this.meshTxBuilder = new MeshTxBuilder({
@@ -46,7 +46,7 @@ export class MeshAdapter {
     }> => {
         const utxos = await this.wallet.getUtxos();
         const collaterals = await this.wallet.getCollateral();
-        const walletAddress = this.wallet.getChangeAddress();
+        const walletAddress = await this.wallet.getChangeAddress();
         if (!utxos || utxos.length === 0)
             throw new Error("No UTXOs found in getWalletForTx method.");
 
