@@ -1,0 +1,43 @@
+import { parseHttpError } from "@/utils";
+import { Network } from "@meshsdk/core";
+import axios, { AxiosInstance } from "axios";
+
+export class KoiosFetcher {
+  private readonly _axiosInstance: AxiosInstance;
+  private readonly _network: Network;
+
+  constructor(baseUrl: string);
+  constructor(token: string, version?: number);
+  constructor(...args: unknown[]) {
+    if (typeof args[0] === "string" && (args[0].startsWith("http") || args[0].startsWith("/"))) {
+      this._axiosInstance = axios.create({ baseURL: args[0] });
+      this._network = "preprod";
+    } else {
+      const token = args[0] as string;
+
+      const baseUrl =`https://preprod.koios.rest/api/v1`;
+
+      this._axiosInstance = axios.create({
+        baseURL: baseUrl,
+        headers: {
+          "content-type": "application/json",
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      this._network = "preprod";
+    }
+  }
+  async fetchAssetsFromAddress(address: string) {
+    try {
+      const { data, status } = await this._axiosInstance.post("/address_assets", {
+        _addresses: [address],
+      });
+
+      if (status === 200) return data;
+      throw parseHttpError(data);
+    } catch (error) {
+      throw parseHttpError(error);
+    }
+  }
+}

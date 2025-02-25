@@ -18,10 +18,9 @@ const ContextProvider = function ({ children }: Props) {
     const [wallet, setWallet] = useState<BrowserWallet | MeshWallet>(null!);
     const [isConnected, setIsConnected] = useState<boolean>(true);
     const connectWallet = async function (name: string) {
-        await BrowserWallet.enable(name, [95]);
+        setWallet(await BrowserWallet.enable(name, [95]));
         setIsConnected(true);
     };
-    
 
     return (
         <Context.Provider

@@ -12,7 +12,6 @@ export class MarketplaceContract extends MeshAdapter {
      * @method SELL
      *
      */
-
     sell = async ({
         policyId,
         assetName,
@@ -26,7 +25,6 @@ export class MarketplaceContract extends MeshAdapter {
     }): Promise<string> => {
         const { utxos, walletAddress, collateral } = await this.getWalletForTx();
         const sellerPaymentKeyHash = deserializeAddress(walletAddress).pubKeyHash;
-        console.log(sellerPaymentKeyHash)
         const unsignedTx = this.meshTxBuilder
             .txOut(this.marketplaceAddress, [
                 {
@@ -44,10 +42,9 @@ export class MarketplaceContract extends MeshAdapter {
                 collateral.output.amount,
                 collateral.output.address,
             )
-            .setNetwork("preprod")
-            .complete();
+            .setNetwork("preprod");
 
-        return unsignedTx;
+        return await unsignedTx.complete();
     };
 
     /**
@@ -58,26 +55,25 @@ export class MarketplaceContract extends MeshAdapter {
         policyId,
         assetName,
         amount = 1,
+        sellerAddress,
     }: {
         policyId: string;
         assetName: string;
         amount?: number;
+        sellerAddress: string
     }) => {
         const { utxos, walletAddress, collateral } = await this.getWalletForTx();
         const utxo = await this.getAddressUTXOAsset(this.marketplaceAddress, policyId + assetName);
-        console.log(utxo)
         if (!utxo) throw new Error("UTxO not found");
 
         
         const datum = await this.readPlutusData({
             plutusData: utxo?.output?.plutusData as string,
         });
-        console.log(datum)
-        const sellerAddress = "addr_test1qptfdrrlhjx5j3v9779q5gh9svzw40nzl74u0q4npxvjrxde20fdxw39qjk6nususjj4m5j9n8xdlptqqk3rlp69qv4q8v6ahk";
-        console.log(sellerAddress)
+       
 
 
-        const unsignedTx = this.meshTxBuilder
+        const unsignedTx = await this.meshTxBuilder
             .spendingPlutusScriptV3()
             .txIn(utxo.input.txHash, utxo.input.outputIndex)
             .txInInlineDatumPresent()
@@ -126,8 +122,9 @@ export class MarketplaceContract extends MeshAdapter {
     }) => {
         const { utxos, walletAddress, collateral } = await this.getWalletForTx();
         const utxo = await this.getAddressUTXOAsset(this.marketplaceAddress, policyId + assetName);
+        console.log(utxo)
 
-        const unsignedTx = this.meshTxBuilder
+        const unsignedTx = await this.meshTxBuilder
             .spendingPlutusScriptV3()
             .txIn(utxo.input.txHash, utxo.input.outputIndex)
             .txInInlineDatumPresent()
@@ -171,7 +168,7 @@ export class MarketplaceContract extends MeshAdapter {
         const { utxos, walletAddress, collateral } = await this.getWalletForTx();
         const utxo = await this.getAddressUTXOAsset(this.marketplaceAddress, policyId + assetName);
         const sellerPaymentKeyHash = deserializeAddress(walletAddress).pubKeyHash;
-        const unsignedTx = this.meshTxBuilder
+        const unsignedTx = await this.meshTxBuilder
             .spendingPlutusScriptV3()
             .txIn(utxo.input.txHash, utxo.input.outputIndex)
             .txInInlineDatumPresent()

@@ -14,12 +14,14 @@ import {
 } from "@/components/ui/dialog";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { Context, ContextType } from "../providers/wallet";
 
 export default function Header() {
     const [wallets, setWallets] = useState<any[]>([]);
     const [isConnected, setIsConnected] = useState<boolean>(true);
-    
+    const { connectWallet, wallet } = useContext<ContextType>(Context);
+
     useEffect(() => {
         async function fetchWallets() {
             const availableWallets = await BrowserWallet.getAvailableWallets();
@@ -47,25 +49,27 @@ export default function Header() {
                                     <DialogTitle>Available wallets</DialogTitle>
                                 </DialogHeader>
                                 <div className="flex flex-col gap-4">
-                                    {wallets?.map((wallet, key: number) => (
+                                    {wallets?.map((walletInfo, key: number) => (
                                         <Button
                                             key={key}
                                             onClick={async () => {
-                                                await BrowserWallet.enable(
-                                                    wallet.id,
-                                                    [95]
+                                                await connectWallet(
+                                                    walletInfo?.id
                                                 );
-                                                setIsConnected(true);
+                                                console.log(
+                                                    await wallet.getChangeAddress()
+                                                );
+                                                setIsConnected(false);
                                             }}
                                             className="w-full flex items-center justify-start"
                                         >
                                             <Image
-                                                src={wallet?.icon}
+                                                src={walletInfo?.icon}
                                                 width={32}
                                                 height={32}
                                                 alt="eternal"
                                             />
-                                            <span>{wallet.id}</span>
+                                            <span>{walletInfo?.id}</span>
                                         </Button>
                                     ))}
                                 </div>

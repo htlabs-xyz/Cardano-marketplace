@@ -1,7 +1,9 @@
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import Image from 'next/image'
-import React from 'react'
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
+import React, { useContext, useEffect, useState } from "react";
 import {
     Table,
     TableBody,
@@ -9,7 +11,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 
 import {
     Dialog,
@@ -18,66 +20,182 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-    DialogFooter
-} from "@/components/ui/dialog"
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-
-
-const offerList = [
-    {
-        price: "100",
-        time: "14:10",
-        addr: "addr1qxegp84qufks983xnfczplquhz8l4elzwhylgk0ww5rq30hxh08546rlah0s3mn8ytkt7a59c5xrwwaap6utkafcu96qe0lsc8"
-    },
-    {
-        price: "200",
-        time: "Feb, 14:10",
-        addr: "addr1qxegp84qufks983xnfczplquhz8l4elzwhylgk0ww5rq30hxh08546rlah0s3mn8ytkt7a59c5xrwwaap6utkafcu96qe0lsc8"
-    },
-    {
-        price: "100",
-        time: "Tues, 15:00",
-        addr: "addr1qxegp84qufks983xnfczplquhz8l4elzwhylgk0ww5rq30hxh08546rlah0s3mn8ytkt7a59c5xrwwaap6utkafcu96qe0lsc8"
-    },
-    {
-        price: "100",
-        time: "Paid",
-        addr: "addr1qxegp84qufks983xnfczplquhz8l4elzwhylgk0ww5rq30hxh08546rlah0s3mn8ytkt7a59c5xrwwaap6utkafcu96qe0lsc8"
-    },
-    {
-        price: "100",
-        time: "Paid",
-        addr: "addr1qxegp84qufks983xnfczplquhz8l4elzwhylgk0ww5rq30hxh08546rlah0s3mn8ytkt7a59c5xrwwaap6utkafcu96qe0lsc8"
-    },
-]
+    DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { useSearchParams } from "next/navigation";
+import { Context, ContextType } from "@/components/providers/wallet";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { BrowserWallet, hexToString } from "@meshsdk/core";
+import { MarketplaceContract } from "../../../../../contract/script";
 
 export default function DetailsNFT() {
+    const { wallet } = useContext<ContextType>(Context);
+    const searchParams = useSearchParams();
+    const policy_id = searchParams.get("policy_id") as string;
+    const asset_name = searchParams.get("asset_name") as string;
+
+    const [price, setPrice] = useState<string>("");
+    const [address, setAddress] = useState<string>("");
+    console.log(address);
+
+    useEffect(
+        function () {
+            async function fetchAddress() {
+                setAddress(await wallet.getChangeAddress());
+            }
+            if (wallet) {
+                fetchAddress();
+            }
+        },
+        [wallet]
+    );
+
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ["assets"],
+        queryFn: async () => {
+            const response = await axios.get(
+                `${window.location.origin}/api/assets?policy_id=${policy_id}&asset_name=${asset_name}`,
+                {
+                    timeout: 7_000,
+                }
+            );
+            return response.data;
+        },
+    });
+
+    const buy = async function (
+        policyId: string,
+        assetName: string,
+        sellerAddress: string
+    ) {
+        if (wallet !== undefined) {
+            const marketplaceContract: MarketplaceContract =
+                new MarketplaceContract({
+                    wallet: wallet as BrowserWallet,
+                });
+            const unsignedTx: string = await marketplaceContract.buy({
+                policyId: policyId,
+                assetName: assetName,
+                amount: 1,
+                sellerAddress: sellerAddress,
+            });
+            console.log(unsignedTx);
+            const signedTx = await wallet.signTx(unsignedTx, true);
+            const txHash = await wallet.submitTx(signedTx);
+            console.log(txHash);
+        }
+    };
+
+    const update = async function (
+        policyId: string,
+        assetName: string,
+        price: string
+    ) {
+        if (wallet !== undefined) {
+            console.log("sell");
+            const marketplaceContract: MarketplaceContract =
+                new MarketplaceContract({
+                    wallet: wallet as BrowserWallet,
+                });
+            const unsignedTx: string = await marketplaceContract.update({
+                policyId: policyId,
+                assetName: assetName,
+                amount: 1,
+                price: Number(price),
+            });
+            console.log(unsignedTx);
+            const signedTx = await wallet.signTx(unsignedTx, true);
+            const txHash = await wallet.submitTx(signedTx);
+            console.log(txHash);
+        }
+    };
+
+    const refund = async function (policyId: string, assetName: string) {
+        if (wallet !== undefined) {
+            console.log("sell");
+            const marketplaceContract: MarketplaceContract =
+                new MarketplaceContract({
+                    wallet: wallet as BrowserWallet,
+                });
+            const unsignedTx: string = await marketplaceContract.refund({
+                policyId: policyId,
+                assetName: assetName,
+                amount: 1,
+            });
+            console.log(unsignedTx);
+            const signedTx = await wallet.signTx(unsignedTx, true);
+            const txHash = await wallet.submitTx(signedTx);
+            console.log(txHash);
+        }
+    };
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (isError) {
+        return <div>Error loading assets</div>;
+    }
+
+    console.log(data);
     return (
-        <div className='flex py-10 space-x-5'>
-            <div className='w-1/2 border rounded-lg overflow-hidden shadow-lg h-fit'>
-                <Image
+        <div className="flex py-10 space-x-5">
+            <div className="w-1/2 border rounded-lg overflow-hidden shadow-lg h-fit">
+                {/* <Image
                     src="https://beyondidonline.com/wp-content/uploads/2023/03/what-is-nft-art-min.jpg"
                     alt="NFT image"
                     quality={100}
                     width={1000}
                     height={1000}
                     className="h-[30rem] w-100 object-contain bg-zinc-100"
-                />
+                /> */}
             </div>
-            <div className='w-1/2 pt-5'>
-                <div className="font-semibold text-2xl">The legendary hiphop boiz</div>
-                <div>Owned by: <span className='text-blue-500'>addr..</span> </div>
-                <div>Polycy ID: <span className='text-blue-500'>h3xu23u..</span> </div>
-                <div className='border rounded-lg p-5 my-3'>
-                    <div className="text-slate-500">Current Price</div>
-                    <div className="font-semibold text-3xl">300 ₳</div>
+            <div className="w-1/2 pt-5">
+                <div className="font-semibold text-2xl">
+                    {hexToString(asset_name || "")}
+                </div>
+                <div>
+                    Owned by:{" "}
+                    <span className="text-blue-500">{data?.seller}</span>{" "}
+                </div>
+                <div>
+                    Polycy ID:{" "}
+                    <span className="text-blue-500">{policy_id}</span>{" "}
+                </div>
+                <div className="border rounded-lg p-5 my-3">
+                    <div className="text-slate-500"></div>
+                    <div className="font-semibold text-3xl">
+                        {data?.price / 1000000} ₳
+                    </div>
                     <Separator className="my-4" />
-                    <div className='grid grid-cols-2 gap-4'>
-                        <Button> Buy now</Button>
+                    <div className="grid grid-cols-2 gap-4">
+                        {data?.seller !== address ? (
+                            <Button
+                                onClick={async () => {
+                                    await buy(
+                                        policy_id,
+                                        asset_name,
+                                        data?.seller
+                                    );
+                                }}
+                            >
+                                Buy now
+                            </Button>
+                        ) : (
+                            <Button
+                                onClick={async () => {
+                                    await refund(policy_id, asset_name);
+                                }}
+                            >
+                                Refund now
+                            </Button>
+                        )}
                         <Dialog>
                             <DialogTrigger asChild>
-                                <Button variant={'outline'}> Make offer</Button>
+                                <Button variant={"outline"}> Make offer</Button>
                             </DialogTrigger>
                             <DialogContent>
                                 <DialogHeader>
@@ -85,53 +203,36 @@ export default function DetailsNFT() {
                                 </DialogHeader>
                                 <div>
                                     <div>
-                                        <Label >Enter amount to offer</Label>
-                                        <Input placeholder='ADA' />
+                                        <Label>Enter amount to offer</Label>
+                                        <Input onChange={(e) => setPrice(e.target.value)} placeholder="ADA" />
                                     </div>
                                 </div>
                                 <DialogFooter>
                                     <DialogClose asChild>
-                                        <Button type="button" variant="secondary">
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                        >
                                             Close
                                         </Button>
                                     </DialogClose>
-                                    <Button>Submit</Button>
+                                    <Button
+                                        onClick={async () => {
+                                            await update(
+                                                policy_id,
+                                                asset_name,
+                                                price
+                                            );
+                                        }}
+                                    >
+                                        Submit
+                                    </Button>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
-
                     </div>
-                </div>
-                <div className='border rounded-lg my-3'>
-                    <div className="font-semibold text-xl px-5 py-3">Offers</div>
-                    <Separator />
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className='w-[50px] text-center'>No.</TableHead>
-                                <TableHead>From</TableHead>
-                                <TableHead className='w-[100px]'>Time</TableHead>
-                                <TableHead className='w-[150px] text-end' >Price</TableHead>
-                                <TableHead className='w-[100px] text-end' >Action</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {offerList.map((x, i) => (
-                                <TableRow key={i}>
-                                    <TableCell className="text-center">{i + 1}</TableCell>
-                                    <TableCell>{x.addr.substring(0, 10) + '...' + x.addr.substring(x.addr.length - 6)}</TableCell>
-                                    <TableCell>{x.time}</TableCell>
-                                    <TableCell className='text-end'>{x.price} ADA</TableCell>
-                                    <TableCell className='text-end'>
-                                        <Button size={"sm"} > Sell</Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-
-                    </Table>
                 </div>
             </div>
         </div>
-    )
+    );
 }

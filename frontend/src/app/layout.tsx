@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/_header";
 import Footer from "@/components/layout/_footer";
+import QueryClientProvider from "@/components/providers/query";
+import ContextProvider from "@/components/providers/wallet";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -30,9 +32,13 @@ export default function RootLayout({
                 suppressHydrationWarning={true}
                 className={`${geistSans.variable} ${geistMono.variable} antialiased `}
             >
-                <Header />
-                <main className=" max-w-6xl mx-auto">{children}</main>
-                <Footer />
+                <QueryClientProvider>
+                    <ContextProvider>
+                        <Header />
+                        <main className=" max-w-6xl mx-auto">{children}</main>
+                        <Footer />
+                    </ContextProvider>
+                </QueryClientProvider>
             </body>
         </html>
     );
