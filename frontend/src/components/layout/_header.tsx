@@ -17,14 +17,22 @@ import Link from "next/link";
 import { useState, useEffect, useContext } from "react";
 import { Context, ContextType } from "../providers/wallet";
 
+export type WalletType = {
+    icon: string;
+    id: string;
+    name: string;
+    version: string;
+};
+
 export default function Header() {
-    const [wallets, setWallets] = useState<any[]>([]);
+    const [wallets, setWallets] = useState<WalletType[]>([]);
     const [isConnected, setIsConnected] = useState<boolean>(true);
     const { connectWallet, wallet } = useContext<ContextType>(Context);
 
     useEffect(() => {
         async function fetchWallets() {
             const availableWallets = await BrowserWallet.getAvailableWallets();
+            console.log(availableWallets);
             setWallets(availableWallets);
         }
         fetchWallets();
@@ -55,9 +63,6 @@ export default function Header() {
                                             onClick={async () => {
                                                 await connectWallet(
                                                     walletInfo?.id
-                                                );
-                                                console.log(
-                                                    await wallet.getChangeAddress()
                                                 );
                                                 setIsConnected(false);
                                             }}

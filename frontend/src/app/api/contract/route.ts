@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { koiosFetcher, blockfrostFetcher } from "@/lib/cardano";
+import { blockfrostFetcher } from "@/lib/cardano";
 import { readPlutusData } from "@/utils";
 
 interface Amount {
@@ -60,7 +60,7 @@ interface TransactionUTxO {
 }
 
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     
     const addressAssets: Transaction[] = await blockfrostFetcher.fetchAddressUTXOs("addr_test1wrg9cgtmc3fjtrxu7s34fgygrc6lrhnfg3h9znxlr4jwayscwrcpu");
     

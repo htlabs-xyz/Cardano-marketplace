@@ -6,7 +6,7 @@ import {
     CardFooter,
     CardHeader,
 } from "@/components/ui/card";
-import Image from "next/image";
+// import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
+// import Link from "next/link";
 import { useContext, useState } from "react";
 import { Context, ContextType } from "@/components/providers/wallet";
 import { useQuery } from "@tanstack/react-query";

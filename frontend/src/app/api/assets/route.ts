@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { koiosFetcher, blockfrostFetcher } from "@/lib/cardano";
+import { blockfrostFetcher } from "@/lib/cardano";
 import { readPlutusData } from "@/utils";
 
 interface Amount {
