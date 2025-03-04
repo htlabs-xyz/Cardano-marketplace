@@ -1,3 +1,4 @@
+// @typescript-eslint/no-explicit-any
 import axios from "axios";
 import { decodeFirst, Tagged } from "cbor";
 import { BlockfrostProvider } from "@meshsdk/core";

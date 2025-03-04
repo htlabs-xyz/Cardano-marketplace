@@ -2,16 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
+// import Image from "next/image";
 import React, { useContext, useEffect, useState } from "react";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
 
 import {
     Dialog,
@@ -72,6 +64,7 @@ export default function DetailsNFT() {
         sellerAddress: string
     ) {
         if (wallet !== undefined) {
+            console.log(await wallet.getChangeAddress());
             const marketplaceContract: MarketplaceContract =
                 new MarketplaceContract({
                     wallet: wallet as BrowserWallet,
@@ -95,7 +88,6 @@ export default function DetailsNFT() {
         price: string
     ) {
         if (wallet !== undefined) {
-            console.log("sell");
             const marketplaceContract: MarketplaceContract =
                 new MarketplaceContract({
                     wallet: wallet as BrowserWallet,
@@ -204,7 +196,12 @@ export default function DetailsNFT() {
                                 <div>
                                     <div>
                                         <Label>Enter amount to offer</Label>
-                                        <Input onChange={(e) => setPrice(e.target.value)} placeholder="ADA" />
+                                        <Input
+                                            onChange={(e) =>
+                                                setPrice(e.target.value)
+                                            }
+                                            placeholder="ADA"
+                                        />
                                     </div>
                                 </div>
                                 <DialogFooter>
